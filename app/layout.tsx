@@ -42,7 +42,7 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <ClerkProvider>
+    <ClerkProvider publishableKey="pk_test_dXNhYmxlLWJvYmNhdC02MS5jbGVyay5hY2NvdW50cy5kZXYk">
       <html lang="en" suppressHydrationWarning>
         <head></head>
         <body className={cn(GeistSans.className, "antialiased dark")}>

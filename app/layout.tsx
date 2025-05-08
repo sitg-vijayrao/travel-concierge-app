@@ -1,3 +1,6 @@
+{
+  /* // @ts-ignore */
+}
 import "./globals.css";
 import { GeistSans } from "geist/font/sans";
 import { Toaster } from "sonner";

@@ -19,43 +19,11 @@ export async function GET(request: Request) {
     new URL("../../assets/geist-semibold.ttf", import.meta.url)
   ).then((res) => res.arrayBuffer());
 
-  return new ImageResponse(
-    (
-      <div
-        tw="flex h-full w-full bg-black"
-        style={{ fontFamily: "Geist Sans" }}
-      >
-        {/* @ts-expect-error */}
-        <img src={imageData} alt="vercel opengraph background" />
-        <div tw="flex flex-col absolute h-full w-[750px] justify-center left-[50px] pr-[50px] pt-[116px] pb-[166px]">
-          <div
-            tw="text-zinc-50 tracking-tight flex-grow-1 flex flex-col justify-center leading-[1.1]"
-            style={{
-              textWrap: "balance",
-              fontWeight: 500,
-              fontSize: 80,
-              color: "black",
-              letterSpacing: "-0.05em",
-            }}
-          >
-            {title}
-          </div>
-          <div tw="text-[40px]" style={{ color: "#7D7D7D" }}>
-            {description}
-          </div>
-        </div>
-      </div>
-    ),
+  return new Response(
+    "Image generation is not supported in this environment.",
     {
-      width: 1200,
-      height: 628,
-      fonts: [
-        {
-          name: "geist",
-          data: geistSemibold,
-          style: "normal",
-        },
-      ],
+      status: 501,
+      headers: { "Content-Type": "text/plain" },
     }
   );
 }

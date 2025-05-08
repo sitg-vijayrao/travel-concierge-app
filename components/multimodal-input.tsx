@@ -53,13 +53,13 @@ export function MultimodalInput({
   setMessages: Dispatch<SetStateAction<Array<Message>>>;
   append: (
     message: Message | CreateMessage,
-    chatRequestOptions?: ChatRequestOptions,
+    chatRequestOptions?: ChatRequestOptions
   ) => Promise<string | null | undefined>;
   handleSubmit: (
     event?: {
       preventDefault?: () => void;
     },
-    chatRequestOptions?: ChatRequestOptions,
+    chatRequestOptions?: ChatRequestOptions
   ) => void;
   className?: string;
 }) {
@@ -75,13 +75,15 @@ export function MultimodalInput({
   const adjustHeight = () => {
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
-      textareaRef.current.style.height = `${textareaRef.current.scrollHeight + 2}px`;
+      textareaRef.current.style.height = `${
+        textareaRef.current.scrollHeight + 2
+      }px`;
     }
   };
 
   const [localStorageInput, setLocalStorageInput] = useLocalStorage(
     "input",
-    "",
+    ""
   );
 
   useEffect(() => {
@@ -154,7 +156,7 @@ export function MultimodalInput({
         onChange={handleInput}
         className={cn(
           "min-h-[24px] max-h-[calc(75dvh)] overflow-hidden resize-none rounded-xl !text-base bg-muted",
-          className,
+          className
         )}
         rows={3}
         autoFocus

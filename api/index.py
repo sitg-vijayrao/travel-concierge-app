@@ -15,6 +15,8 @@ from google.auth.transport import requests as google_requests
 import requests
 import logging
 from fastapi.encoders import jsonable_encoder
+from vertexai import agent_engines
+
 
 
 
@@ -23,13 +25,15 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI()
 
-client = OpenAI(
-    api_key=os.environ.get("OPENAI_API_KEY"),
-)
+# client = OpenAI(
+#     api_key=os.environ.get("OPENAI_API_KEY"),
+# )
 
 projectId = os.environ.get("GOOGLE_PROJECT_ID")
 location = 'us-central1'
 resourceId = '5929349549247168512'
+project_id = "light-operator-308612"
+reasoning_engine_id = "6767863504868212736"
 
 vertexai.init(project=projectId, location=location)
 
@@ -161,58 +165,27 @@ def get_identity_token():
     return credentials.token
 
 
-# @app.post("/api/chat")
-# async def handle_chat_data(request: Request, protocol: str = Query('data')):
-#     messages = request.messages
-#     openai_messages = convert_to_openai_messages(messages)
-
-#     # response = StreamingResponse(stream_text(openai_messages, protocol))
-#     # response.headers['x-vercel-ai-data-stream'] = 'v1'
-#     # return response
-#     response = requests.post(
-#         f"https://{location}-aiplatform.googleapis.com/v1/projects/{projectId}/locations/{location}/reasoningEngines/{resourceId}:streamQuery",
-#         headers={
-#             "Content-Type": "application/json",
-#             "Authorization": f"Bearer {get_identity_token()}",
-#         },
-#         data=json.dumps({
-#             "class_method": "stream_query",
-#             "input": {
-#                 "input": {"messages": openai_messages},
-#             },
-#         }),
-#         stream=True,
-#     )
-#     response.headers['x-vercel-ai-data-stream'] = 'v1'
-#     return response
-
 @app.post("/api/chat")
 async def handle_chat_data(request: Request, protocol: str = Query('data')):
     # Convert request data to dict first
     messages = request.messages
     openai_messages = convert_to_openai_messages(messages)
-    print(f"messages", messages)
-    print(f"openai_messages", openai_messages)
+
+    current_message = "What is the exchange rate from US dollars to Swedish currency?"
+    app_user_id = "user_example_12345"
     try:
         # Create the payload as a plain dict
         payload = {
-            "class_method": "stream_query",
+            "class_method": "stream_query", # The method to call in your Reasoning Engine App
             "input": {
-                "message": "What is the exchange rate from US dollars to Swedish currency?",
-                "user_id": "YOUR_USER_ID"
-                # "messages": [  # Optional: if you still want to include conversation history
-                #     {
-                #         "role": "user",
-                #         "content": "What is the exchange rate from US dollars to Swedish currency?"
-                #     }
-                # ]
-            }
+                # These keys MUST match the keyword argument names in AdkApp.stream_query()
+                "message": current_message,  # <-- Use 'message' (singular)
+                "user_id": app_user_id     # <-- user_id matches
+            },
         }
 
-        logger.debug(f"Sending payload: {json.dumps(payload, indent=2)}")
-
-        return requests.post(
-            f"https://{location}-aiplatform.googleapis.com/v1/projects/{projectId}/locations/{location}/reasoningEngines/{resourceId}:streamQuery",
+        response = requests.post(
+            f"https://{location}-aiplatform.googleapis.com/v1/projects/gen-lang-client-0357148804/locations/us-central1/reasoningEngines/5929349549247168512:streamQuery",
             headers={
                 "Content-Type": "application/json",
                 "Authorization": f"Bearer {get_identity_token()}",
@@ -221,17 +194,20 @@ async def handle_chat_data(request: Request, protocol: str = Query('data')):
             stream=True,
         )
 
-        logger.info(f"Response status: {response.status_code}")
-
-        # Create a streaming response
-        async def generate():
-            for chunk in response.iter_content(chunk_size=8192):
-                yield chunk
+        def generate():
+            for chunk in response.iter_lines():
+                decoded = json.loads(chunk.decode("utf-8"))
+                if(decoded.get("content") and decoded["content"].get("parts")):
+                    for text in decoded["content"]["parts"]:
+                        yield '0:{text}\n'.format(text=json.dumps(text))
 
         return StreamingResponse(
             generate(),
-            media_type="application/json",
-            headers={'x-vercel-ai-data-stream': 'v1'}
+            media_type="text/event-stream",
+            headers={
+                "Cache-Control": "no-cache",
+                "Connection": "keep-alive"
+            }
         )
 
     except Exception as e:

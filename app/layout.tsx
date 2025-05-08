@@ -3,6 +3,14 @@ import { GeistSans } from "geist/font/sans";
 import { Toaster } from "sonner";
 import { cn } from "@/lib/utils";
 import { Navbar } from "@/components/navbar";
+import {
+  ClerkProvider,
+  SignInButton,
+  SignUpButton,
+  SignedIn,
+  SignedOut,
+  UserButton,
+} from "@clerk/nextjs";
 
 export const metadata = {
   title: "AI SDK Python Streaming Preview",
@@ -25,19 +33,21 @@ export const metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
-      <head></head>
-      <body className={cn(GeistSans.className, "antialiased dark")}>
-        <Toaster position="top-center" richColors />
-        <Navbar />
-        {children}
-      </body>
-    </html>
+    <ClerkProvider>
+      <html lang="en" suppressHydrationWarning>
+        <head></head>
+        <body className={cn(GeistSans.className, "antialiased dark")}>
+          <Toaster position="top-center" richColors />
+          <Navbar />
+          {children}
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }

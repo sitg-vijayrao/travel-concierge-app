@@ -14,6 +14,7 @@ import {
   SignedOut,
   UserButton,
 } from "@clerk/nextjs";
+import { SessionProvider } from "@/lib/session-context";
 
 export const metadata = {
   title: "AI SDK Python Streaming Preview",
@@ -42,13 +43,18 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <ClerkProvider publishableKey="pk_test_dXNhYmxlLWJvYmNhdC02MS5jbGVyay5hY2NvdW50cy5kZXYk">
+    <ClerkProvider
+      dynamic
+      publishableKey="pk_test_dXNhYmxlLWJvYmNhdC02MS5jbGVyay5hY2NvdW50cy5kZXYk"
+    >
       <html lang="en" suppressHydrationWarning>
         <head></head>
         <body className={cn(GeistSans.className, "antialiased dark")}>
-          <Toaster position="top-center" richColors />
-          <Navbar />
-          {children}
+          <SessionProvider>
+            <Toaster position="top-center" richColors />
+            <Navbar />
+            {children}
+          </SessionProvider>
         </body>
       </html>
     </ClerkProvider>

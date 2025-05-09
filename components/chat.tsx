@@ -6,10 +6,13 @@ import { Overview } from "@/components/overview";
 import { useScrollToBottom } from "@/hooks/use-scroll-to-bottom";
 import { useChat } from "@ai-sdk/react";
 import { toast } from "sonner";
+import { SessionProvider, useSession } from "@/lib/session-context";
+import { useUser } from "@clerk/nextjs";
 
 export function Chat() {
   const chatId = "001";
-
+  const { user } = useUser();
+  const session = useSession();
   const {
     messages,
     setMessages,
@@ -22,12 +25,11 @@ export function Chat() {
   } = useChat({
     api: "https://trvlcapi-164205107694.us-central1.run.app/api/v1/stream_query/",
     body: {
-      user_id: "deepam@gmail.com",
-      session_id: "6940236691533725696",
-      message:
-        "Find flights to London from JFK on April 20th for 4 days. Pick any flights and any seats; also Any hotels and room type. Make sure you pick seats for both flights. Go ahead and act on my behalf without my input, until you have selected everything, confirm with me before generating an itinerary",
+      user_id: user?.emailAddresses[0].emailAddress,
+      session_id: session.sessionId,
+      message: "hi",
     },
-    streamProtocol: "data",
+    streamProtocol: "text",
     maxSteps: 4,
     onError: (error) => {
       if (error.message.includes("Too many requests")) {

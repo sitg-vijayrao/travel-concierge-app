@@ -6,12 +6,13 @@ import { Overview } from "@/components/overview";
 import { useScrollToBottom } from "@/hooks/use-scroll-to-bottom";
 import { useChat } from "@ai-sdk/react";
 import { toast } from "sonner";
-import { SessionProvider, useSession } from "@/lib/session-context";
-import { useUser } from "@clerk/nextjs";
+import { useSession } from "@/lib/session-context";
+import { useUser, useAuth } from "@clerk/nextjs";
 
 export function Chat() {
   const chatId = "001";
   const { user } = useUser();
+  const { userId, isLoaded, isSignedIn } = useAuth();
   const session = useSession();
   const {
     messages,
@@ -25,7 +26,7 @@ export function Chat() {
   } = useChat({
     api: "https://trvlcapi-164205107694.us-central1.run.app/api/v1/stream_query/",
     body: {
-      user_id: user?.emailAddresses[0].emailAddress,
+      user_id: userId,
       session_id: session.sessionId,
       message: "hi",
     },

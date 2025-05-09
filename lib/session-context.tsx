@@ -44,7 +44,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
               method: "POST",
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
-                user_id: user?.emailAddresses[0].emailAddress,
+                user_id: userId,
               }),
             }
           );

@@ -30,7 +30,7 @@ export function Chat() {
       session_id: session.sessionId,
       message: "hi",
     },
-    streamProtocol: "text",
+    streamProtocol: "data",
     maxSteps: 4,
     onError: (error) => {
       if (error.message.includes("Too many requests")) {
